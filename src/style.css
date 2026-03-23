@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@reference "tailwindcss";
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-[#0f172a];
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #2563eb; }
+
+:root {
+  color-scheme: dark;
+}
+
+
+/* Animations personnalisées */
+.fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Transition de page */
+.page-fade-enter-active, .page-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.page-fade-enter-from, .page-fade-leave-to {
+  opacity: 0;
+}
