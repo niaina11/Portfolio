@@ -321,22 +321,12 @@
 <form
   v-if="!formSubmitted"
   @submit.prevent="handleSubmit"
-  name="contact"
-  method="POST"
-  data-netlify="true"
-  netlify-honeypot="bot-field"
   class="max-w-md mx-auto space-y-4 text-left"
 >
-  <input type="hidden" name="form-name" value="contact" />
-  <p class="hidden">
-    <label>Ne pas remplir: <input name="bot-field" v-model="form.botField" /></label>
-  </p>
-
   <div>
     <input
       v-model="form.name"
       type="text"
-      name="name"
       required
       :placeholder="lang === 'FR' ? 'Votre nom' : 'Your name'"
       class="w-full px-5 py-3.5 rounded-xl text-sm bg-white/[0.03] border border-white/10 focus:border-blue-500/50 outline-none transition-colors"
@@ -348,7 +338,6 @@
     <input
       v-model="form.email"
       type="email"
-      name="email"
       required
       placeholder="Email"
       class="w-full px-5 py-3.5 rounded-xl text-sm bg-white/[0.03] border border-white/10 focus:border-blue-500/50 outline-none transition-colors"
@@ -359,7 +348,6 @@
   <div>
     <textarea
       v-model="form.message"
-      name="message"
       required
       rows="5"
       :placeholder="lang === 'FR' ? 'Votre message' : 'Your message'"
@@ -438,6 +426,7 @@ import video3 from '@/assets/video/video3.mp4'
 import image1 from '@/assets/img1.png'
 import M2 from '@/assets/video/M2.mp4'
 import M2_image from '@/assets/M2.png'
+import emailjs from '@emailjs/browser'
 
 const isDark = ref(true)
 const lang = ref('FR')
@@ -460,13 +449,19 @@ const handleSubmit = async () => {
   isSubmitting.value = true
   formError.value = false
   try {
-    await fetch('/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: encode({ 'form-name': 'contact', ...form.value })
-    })
+    await emailjs.send(
+      'service_84710nr',
+      'template_cht1v91',
+      {
+        name: form.value.name,
+        email: form.value.email,
+        message: form.value.message,
+      },
+      'hEQ8QNlz253lToerH'
+    )
     formSubmitted.value = true
   } catch (err) {
+    console.error(err)
     formError.value = true
   } finally {
     isSubmitting.value = false
