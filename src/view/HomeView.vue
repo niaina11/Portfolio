@@ -314,12 +314,82 @@
     <section id="contact" class="py-32 px-6 reveal-on-scroll relative overflow-hidden">
       <div class="max-w-5xl mx-auto text-center">
         <h2 class="text-[10px] font-black text-blue-500 uppercase tracking-[0.5em] mb-8">Un projet en tête ?</h2>
-        <a href="mailto:razafindrabesitrakiniaina11@gmail.com" class="group relative inline-block">
-          <h3 class="text-xl md:text-3xl font-black tracking-tighter transition-all duration-500 group-hover:text-blue-600" :class="isDark ? 'text-white' : 'text-slate-900'">
-            {{ lang === 'FR' ? "DISCUTONS-EN." : "LET'S TALK." }}
-          </h3>
-          <div class="h-1.5 w-0 bg-blue-600 mx-auto group-hover:w-full transition-all duration-500"></div>
-        </a>
+        <h3 class="text-xl md:text-3xl font-black tracking-tighter mb-10" :class="isDark ? 'text-white' : 'text-slate-900'">
+  {{ lang === 'FR' ? "DISCUTONS-EN." : "LET'S TALK." }}
+</h3>
+
+<form
+  v-if="!formSubmitted"
+  @submit.prevent="handleSubmit"
+  name="contact"
+  method="POST"
+  data-netlify="true"
+  netlify-honeypot="bot-field"
+  class="max-w-md mx-auto space-y-4 text-left"
+>
+  <input type="hidden" name="form-name" value="contact" />
+  <p class="hidden">
+    <label>Ne pas remplir: <input name="bot-field" v-model="form.botField" /></label>
+  </p>
+
+  <div>
+    <input
+      v-model="form.name"
+      type="text"
+      name="name"
+      required
+      :placeholder="lang === 'FR' ? 'Votre nom' : 'Your name'"
+      class="w-full px-5 py-3.5 rounded-xl text-sm bg-white/[0.03] border border-white/10 focus:border-blue-500/50 outline-none transition-colors"
+      :class="isDark ? 'text-white placeholder:text-slate-500' : 'text-slate-900 placeholder:text-slate-400'"
+    />
+  </div>
+
+  <div>
+    <input
+      v-model="form.email"
+      type="email"
+      name="email"
+      required
+      placeholder="Email"
+      class="w-full px-5 py-3.5 rounded-xl text-sm bg-white/[0.03] border border-white/10 focus:border-blue-500/50 outline-none transition-colors"
+      :class="isDark ? 'text-white placeholder:text-slate-500' : 'text-slate-900 placeholder:text-slate-400'"
+    />
+  </div>
+
+  <div>
+    <textarea
+      v-model="form.message"
+      name="message"
+      required
+      rows="5"
+      :placeholder="lang === 'FR' ? 'Votre message' : 'Your message'"
+      class="w-full px-5 py-3.5 rounded-xl text-sm bg-white/[0.03] border border-white/10 focus:border-blue-500/50 outline-none transition-colors resize-none"
+      :class="isDark ? 'text-white placeholder:text-slate-500' : 'text-slate-900 placeholder:text-slate-400'"
+    ></textarea>
+  </div>
+
+  <button
+    type="submit"
+    :disabled="isSubmitting"
+    class="w-full px-8 py-4 bg-blue-600 text-white font-black text-[9px] uppercase tracking-[0.2em] rounded-xl shadow-2xl shadow-blue-600/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    {{ isSubmitting ? (lang === 'FR' ? 'Envoi...' : 'Sending...') : (lang === 'FR' ? 'Envoyer' : 'Send') }}
+  </button>
+
+  <p v-if="formError" class="text-red-400 text-[11px] text-center">
+    {{ lang === 'FR' ? "Une erreur est survenue. Réessaie ou écris-moi directement." : "Something went wrong. Try again or email me directly." }}
+  </p>
+</form>
+
+<div v-else class="max-w-md mx-auto text-center py-10">
+  <p class="text-2xl mb-3">✅</p>
+  <p class="text-sm font-bold" :class="isDark ? 'text-white' : 'text-slate-900'">
+    {{ lang === 'FR' ? "Message envoyé, merci !" : "Message sent, thank you!" }}
+  </p>
+  <p class="text-[11px] opacity-50 mt-2">
+    {{ lang === 'FR' ? "Je te réponds au plus vite." : "I'll get back to you soon." }}
+  </p>
+</div>
 
         <div class="mt-24 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left border-t border-white/5 pt-16">
           <div class="space-y-4">
@@ -374,6 +444,34 @@ const lang = ref('FR')
 const mouseX = ref(0)
 const mouseY = ref(0)
 const selectedProject = ref(null)
+
+const form = ref({ name: '', email: '', message: '', botField: '' })
+const isSubmitting = ref(false)
+const formSubmitted = ref(false)
+const formError = ref(false)
+
+const encode = (data) => {
+  return Object.keys(data)
+    .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+    .join('&')
+}
+
+const handleSubmit = async () => {
+  isSubmitting.value = true
+  formError.value = false
+  try {
+    await fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: encode({ 'form-name': 'contact', ...form.value })
+    })
+    formSubmitted.value = true
+  } catch (err) {
+    formError.value = true
+  } finally {
+    isSubmitting.value = false
+  }
+}
 
 const handleGlobalMouseMove = (e) => {
   mouseX.value = (e.clientX - window.innerWidth / 2) / 25
